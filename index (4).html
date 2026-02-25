@@ -1,0 +1,698 @@
+<!doctype html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>IQ Test — Dark Red</title>
+  <style>
+    :root{
+      --bg:#2b0000; /* very dark red */
+      --panel:#3b0000;
+      --accent:#c81b1b; /* bright red */
+      --accent-2:#ff4d4d; /* light red */
+      --muted:#bfbfbf;
+      --good:#1fbf4a;
+      --bad:#ff3b3b;
+      --glass: rgba(255,255,255,0.03);
+      --radius:14px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+      background:linear-gradient(180deg,var(--bg),#1f0000 80%);
+      color:#fff;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+
+    /* Card */
+    .card{
+      width:100%;
+      max-width:820px;
+      background:linear-gradient(180deg,var(--panel),#2a0000 60%);
+      border-radius:var(--radius);
+      padding:20px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+    }
+
+    /* Header */
+    .header{
+      display:flex;
+      gap:16px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .title{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    .logo{
+      width:48px;height:48px;border-radius:10px;
+      background:linear-gradient(135deg,var(--accent),var(--accent-2));
+      display:flex;align-items:center;justify-content:center;font-weight:700;color:#200;
+      box-shadow:0 6px 18px rgba(200,30,30,0.18);
+      font-family:monospace;
+    }
+    h1{font-size:18px;margin:0}
+    p.subtitle{margin:0;color:var(--muted);font-size:13px}
+
+    /* Settings */
+    .controls{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    label{font-size:13px;color:var(--muted)}
+    .select, .btn{
+      background:var(--glass);
+      border:1px solid rgba(255,255,255,0.04);
+      color:#fff;padding:10px 12px;border-radius:10px;font-size:14px;
+    }
+    select.select{appearance:none;padding-right:28px}
+    .btn{
+      cursor:pointer;border:none;
+      transition:transform .12s ease, box-shadow .12s ease, opacity .12s;
+    }
+    .btn.primary{
+      background:linear-gradient(90deg,var(--accent),var(--accent-2));
+      color:#210000;font-weight:700;box-shadow:0 8px 28px rgba(200,0,0,0.18);
+    }
+    .btn:active{transform:translateY(1px)}
+
+    /* Main area */
+    .main{
+      display:flex;gap:18px;align-items:flex-start;
+      flex-wrap:wrap;
+    }
+
+    /* Center question area */
+    .center{
+      flex:1 1 520px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+      padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.02);
+      display:flex;flex-direction:column;gap:12px;align-items:stretch;
+    }
+    .meta{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+    }
+    .progress{
+      height:10px;background:rgba(255,255,255,0.04);border-radius:999px;overflow:hidden;flex:1;margin-left:12px;
+    }
+    .progress > i{
+      display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));
+      width:0%;transition:width .45s cubic-bezier(.2,.9,.26,1);
+    }
+
+    .timer{
+      min-width:92px;text-align:center;font-weight:600;background:rgba(0,0,0,0.2);padding:6px 10px;border-radius:10px;
+      border:1px solid rgba(255,255,255,0.03);
+    }
+
+    .question-box{
+      display:flex;flex-direction:column;align-items:center;gap:14px;padding:12px;
+    }
+    .question-text{
+      font-size:20px;text-align:center;line-height:1.3;
+      max-width:820px;padding:6px 12px;
+    }
+
+    .options{
+      display:grid;grid-template-columns:repeat(2,1fr);gap:12px;width:100%;
+    }
+    .option{
+      background:rgba(0,0,0,0.25);border-radius:10px;padding:12px 14px;border:1px solid rgba(255,255,255,0.03);
+      cursor:pointer;transition:transform .12s ease, box-shadow .12s ease, background .18s;user-select:none;
+      display:flex;align-items:center;gap:12px;font-weight:600;
+    }
+    .option:active{transform:translateY(1px)}
+    .option.disabled{pointer-events:none;opacity:.62}
+
+    .option .tag{
+      min-width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center;
+      font-weight:700;color:var(--accent-2);
+    }
+
+    /* Next button area */
+    .actions{
+      display:flex;align-items:center;justify-content:center;gap:12px;margin-top:6px;
+    }
+    .next-btn{display:none}
+
+    /* Result panel */
+    .side{
+      width:260px;min-width:220px;
+      display:flex;flex-direction:column;gap:12px;
+    }
+    .card-mini{
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+      padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.02);
+      display:flex;flex-direction:column;gap:8px;
+    }
+    .stat{
+      display:flex;align-items:center;justify-content:space-between;font-weight:700;
+    }
+    .result-big{
+      font-size:28px;font-weight:800;color:var(--accent-2);text-align:center;
+    }
+
+    /* Animations for feedback */
+    .flash{
+      animation:flash .8s ease forwards;
+    }
+    @keyframes flash{
+      0%{box-shadow:0 0 0 rgba(0,0,0,0)}
+      30%{box-shadow:0 10px 40px rgba(31,191,74,0.14)}
+      100%{box-shadow:0 6px 18px rgba(0,0,0,0)}
+    }
+    .shake{
+      animation:shake .6s cubic-bezier(.36,.07,.19,.97) both;
+    }
+    @keyframes shake{
+      10%,90%{transform:translate3d(-1px,0,0)}
+      20%,80%{transform:translate3d(2px,0,0)}
+      30%,50%,70%{transform:translate3d(-4px,0,0)}
+      40%,60%{transform:translate3d(4px,0,0)}
+    }
+
+    /* Option state colors */
+    .option.correct{
+      background:linear-gradient(90deg, rgba(31,191,74,0.15), rgba(31,191,74,0.06));
+      border:1px solid rgba(31,191,74,0.16);
+      color:var(--good);
+      box-shadow:0 6px 18px rgba(31,191,74,0.08);
+    }
+    .option.wrong{
+      background:linear-gradient(90deg, rgba(255,59,59,0.12), rgba(255,59,59,0.04));
+      border:1px solid rgba(255,59,59,0.14);
+      color:var(--bad);
+      box-shadow:0 6px 18px rgba(255,59,59,0.06);
+    }
+
+    /* Footer small */
+    .foot{color:var(--muted);font-size:13px;text-align:center;padding-top:4px}
+
+    /* Responsive */
+    @media (max-width:880px){
+      .main{flex-direction:column}
+      .side{width:100%}
+      .options{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="card" id="app">
+    <div class="header">
+      <div class="title">
+        <div class="logo">IQ</div>
+        <div>
+          <h1>IQ Test</h1>
+          <p class="subtitle">Dark Red — tez va silliq IQ test</p>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:center;">
+        <div style="text-align:right">
+          <div style="font-weight:700">Savol: <span id="metaIndex">0</span>/<span id="metaTotal">0</span></div>
+          <div style="font-size:12px;color:var(--muted)">To'g'ri: <span id="metaCorrect">0</span>  |  Noto'g'ri: <span id="metaWrong">0</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings -->
+    <div class="controls">
+      <label>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:6px">Daraja</div>
+        <select id="difficulty" class="select">
+          <option value="easy">Easy (≈100 IQ)</option>
+          <option value="medium">Medium (≈200 IQ)</option>
+          <option value="hard">Hard (≈300 IQ)</option>
+        </select>
+      </label>
+
+      <label>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:6px">Savol soni</div>
+        <select id="count" class="select">
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="30">30</option>
+        </select>
+      </label>
+
+      <label>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:6px">Taymer</div>
+        <select id="timerOpt" class="select">
+          <option value="none">Taymer yo'q</option>
+          <option value="30">30 soniya</option>
+          <option value="60">60 soniya</option>
+        </select>
+      </label>
+
+      <div style="margin-left:auto;display:flex;gap:8px">
+        <button id="startBtn" class="btn primary">Start</button>
+        <button id="restartBtn" class="btn" style="display:none">Qayta boshlash</button>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="center" aria-live="polite">
+        <div class="meta">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="font-size:13px;color:var(--muted)">Progress</div>
+            <div class="progress" aria-hidden="true"><i id="progressBar"></i></div>
+          </div>
+          <div class="timer" id="timerDisplay" aria-hidden="true">--</div>
+        </div>
+
+        <div class="question-box">
+          <!-- DOM elements created once -->
+          <div id="questionText" class="question-text">Boshlash uchun Start tugmasini bosing</div>
+
+          <div id="options" class="options" role="list">
+            <!-- 4 option buttons created once -->
+            <button class="option" data-i="0"><span class="tag">A</span><span class="opt-text">Option A</span></button>
+            <button class="option" data-i="1"><span class="tag">B</span><span class="opt-text">Option B</span></button>
+            <button class="option" data-i="2"><span class="tag">C</span><span class="opt-text">Option C</span></button>
+            <button class="option" data-i="3"><span class="tag">D</span><span class="opt-text">Option D</span></button>
+          </div>
+
+          <div class="actions">
+            <button id="nextBtn" class="btn primary next-btn">Next →</button>
+          </div>
+
+        </div>
+      </div>
+
+      <aside class="side">
+        <div class="card-mini">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-size:13px;color:var(--muted)">Ball</div>
+            <div style="font-weight:800;font-size:20px" id="score">0</div>
+          </div>
+          <div style="font-size:12px;color:var(--muted)">Har bir to'g'ri javob +1</div>
+        </div>
+
+        <div class="card-mini" id="finalCard" style="display:none;align-items:center">
+          <div class="result-big" id="finalIQ">IQ</div>
+          <div style="color:var(--muted);font-size:13px;text-align:center" id="finalBreak"></div>
+          <div style="display:flex;gap:8px;margin-top:8px;width:100%">
+            <div style="flex:1;padding:8px;border-radius:8px;background:rgba(0,0,0,0.12);text-align:center">
+              <div style="font-size:13px;color:var(--muted)">To'g'ri</div>
+              <div style="font-weight:800" id="finalCorrect">0</div>
+            </div>
+            <div style="flex:1;padding:8px;border-radius:8px;background:rgba(0,0,0,0.06);text-align:center">
+              <div style="font-size:13px;color:var(--muted)">Noto'g'ri</div>
+              <div style="font-weight:800" id="finalWrong">0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-mini" style="font-size:13px;color:var(--muted);text-align:center">
+          Maslahat: javobni tanlaganingizdan so'ng Next tugmasi 0.8s keyin paydo bo'ladi.
+        </div>
+      </aside>
+    </div>
+
+    <div class="foot">Designed for mobile & desktop · Dark Red UI · DOM created once · Smooth timer & transitions</div>
+  </div>
+
+  <script>
+    // Questions database: easy / medium / hard
+    // Each question: {q: string, options: [4], a: index}
+    // NOTE: questions are concise examples. You can expand arrays later.
+    const QUESTION_BANK = {
+      easy: [
+        { q: "2 + 3 = ?", options: ["4","5","6","3"], a: 1 },
+        { q: "Geometriyada to'rt burchakli shakl 'kvadrat' bo'lishi uchun tomonlari qanday bo'lishi kerak?", options: ["Turli","Ikki juft teng","Barcha teng","Faqat qarama-qarshi teng"], a: 2 },
+        { q: "Oy Yerdan qancha tezlikda aylanadi? (oddiy javob)", options: ["Sekin","Bir necha soatda","Kun davomida","Bir oyda"], a: 3 },
+        { q: " \"Cat\" so'zi ingliz tilida nimani bildiradi?", options: ["It","Mushuk","Quyon","Quyosh"], a: 1 },
+        { q: "10 ning yarmi nechiga teng?", options: ["2","5","8","6"], a: 1 },
+        { q: "Ranglar: Qizil + Moviy = ?", options: ["Sariq","Qora","To'q","Qizil-moviy"], a: 3 },
+        { q: "5 * 2 = ?", options: ["10","12","7","15"], a: 0 },
+        { q: "Oy kelishi nima bilan bog'liq?", options: ["Harorat","Orbitada aylanish","Iqlim","Toshlar"], a: 1 },
+        { q: "Qo'shilmadan chiqish natijasi - '3 - 1' = ?", options: ["3","1","2","4"], a: 2 },
+        { q: "Odamlarning ko'zlari odatda nechta rangni farqlaydi?", options: ["1","2","3","Ko'plab"], a: 3 }
+      ],
+
+      medium: [
+        { q: "Agar 3x + 5 = 20 bo'lsa, x nechiga teng?", options: ["3","5","6","15"], a: 2 },
+        { q: "Parkda 12 ta daraxt bor, ularning 1/3 qismi kesildi. Nechta daraxt qoldi?", options: ["4","8","6","9"], a: 1 },
+        { q: "Agar har bir hafta 7 kun bo'lsa, 10 hafta necha kun?", options: ["70","60","100","40"], a: 0 },
+        { q: "Agar son 8 ga bo'linganda qoldiq 3 chiqsa va 3 ga bo'linganda qoldiq 2 bo'lsa, bu son 11 bo'lishi mumkinmi?", options: ["Ha","Yo'q","Faqat 14","Faqat 17"], a: 0 },
+        { q: "Raqamlar qatorida 2,4,8,16,... keyingi raqam nima?", options: ["18","20","32","24"], a: 2 },
+        { q: "Agar p q ga teng bo'lsa va q=4, p=3q bo'lsa, p nechiga teng?", options: ["7","12","16","9"], a: 1 },
+        { q: "Soat 3:15 da qancha daraja mavjud? (soat qo'li-vaqtmga nisbatan)", options: ["97.5°","7.5°","15°","45°"], a: 0 },
+        { q: "Agar 5 kishiga 15 ta olma teng taqsimlansa, har biriga nechta tushadi?", options: ["3","5","2","4"], a: 0 },
+        { q: "Sinfdagi o'quvchilar 24 ta, 3 qatorga teng taqsimlansa, har qatorda nechta o'quvchi?", options: ["6","8","12","4"], a: 1 },
+        { q: "Rasmda figurada shart: A→B, B→C bo'lsa A→C qayerga mos?", options: ["To'g'ri","Yolg'on","Ba'zan","Hech qachon"], a: 0 }
+      ],
+
+      hard: [
+        { q: "3x - 7 = 2(x + 5). x nechiga teng?", options: ["-3","17","-2","27"], a: 2 },
+        { q: "Agar f(x)=2x^2 - 3x +1 bo'lsa, f(2) nechiga teng?", options: ["3","7","5","9"], a: 2 },
+        { q: "Ketma-ketlik: 2,3,5,9,17,... qoida qanday? Keyingi son nima?", options: ["31","33","29","35"], a: 0 },
+        { q: "Kub ildiz(27) = ?", options: ["2","3","9","1"], a: 1 },
+        { q: "Agar son 7 va 11 ga ham bo'linsa, eng kichik musbat son nechchi?", options: ["77","11","7","0"], a: 0 },
+        { q: "Agar chiziq tenglama 2x + 3y = 12 bo'lsa, x=3 ga teng bo'lsa y nechiga teng?", options: ["1","2","3","0"], a: 0 },
+        { q: "Analitik: agar panjara ichida 4 ta uchburchak va 1 kvadrat bo'lsa, shakl umumiy qirralari yog'ochdan ekan. Agar har bir uchburchak 3 qirrali bo'lsa, jami qirralar nechta? (oddiylashtiring)", options: ["16","15","14","18"], a: 0 },
+        { q: "Masala: Nima 2 sonlar yig'indisi 25 va farqi 7 bo'lsa, sonlar nima?", options: ["16 va 9","18 va 7","12 va 13","20 va 5"], a: 0 },
+        { q: "Agar a*b = a^2 - b bo'lsa, 3*2 = ?", options: ["7","8","5","6"], a: 0 },
+        { q: "Mantiq: agar hamma A B bo'lib, ba'zi B C bo'lsa, A -> C degan xulosa qanchalik to'g'ri?", options: ["Mayli","To'g'ri emas","Hech qachon","Doimiy emas"], a: 3 }
+      ]
+    };
+
+    // Utility helpers
+    const $ = sel => document.querySelector(sel);
+    const $all = sel => Array.from(document.querySelectorAll(sel));
+
+    // DOM references (created once)
+    const startBtn = $('#startBtn');
+    const restartBtn = $('#restartBtn');
+    const nextBtn = $('#nextBtn');
+    const difficultySel = $('#difficulty');
+    const countSel = $('#count');
+    const timerSel = $('#timerOpt');
+    const questionText = $('#questionText');
+    const optionButtons = $all('.option');
+    const optTexts = $all('.opt-text');
+    const metaIndex = $('#metaIndex');
+    const metaTotal = $('#metaTotal');
+    const metaCorrect = $('#metaCorrect');
+    const metaWrong = $('#metaWrong');
+    const scoreEl = $('#score');
+    const progressBar = $('#progressBar');
+    const timerDisplay = $('#timerDisplay');
+    const finalCard = $('#finalCard');
+    const finalIQ = $('#finalIQ');
+    const finalBreak = $('#finalBreak');
+    const finalCorrect = $('#finalCorrect');
+    const finalWrong = $('#finalWrong');
+
+    // State
+    let questions = [];        // selected shuffled questions
+    let current = 0;
+    let total = 0;
+    let correctCount = 0;
+    let wrongCount = 0;
+    let timerInterval = null;
+    let timeLeft = 0;
+    let perQuestionTime = 0;
+    let locked = false;
+    let currentDifficulty = 'easy';
+
+    // Initialize UI baseline
+    metaIndex.textContent = 0;
+    metaTotal.textContent = 0;
+    metaCorrect.textContent = 0;
+    metaWrong.textContent = 0;
+    progressBar.style.width = '0%';
+    timerDisplay.textContent = '--';
+    finalCard.style.display = 'none';
+    nextBtn.style.display = 'none';
+
+    // Shuffle helper
+    function shuffle(arr){
+      const a = arr.slice();
+      for (let i=a.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [a[i],a[j]]=[a[j],a[i]];
+      }
+      return a;
+    }
+
+    // Prepare questions based on difficulty & count
+    function prepareQuestions(level, count){
+      const bank = QUESTION_BANK[level] || [];
+      const pool = shuffle(bank);
+      // If requested count > bank length, repeat random selection to fill
+      if (count <= pool.length) return pool.slice(0, count);
+      const res = pool.slice();
+      while (res.length < count){
+        res.push(...shuffle(bank));
+      }
+      return res.slice(0,count);
+    }
+
+    // Render a question (DOM elements reused)
+    function renderQuestion(){
+      const q = questions[current];
+      if (!q) return;
+      questionText.textContent = q.q;
+      // Update option texts
+      for (let i=0;i<4;i++){
+        const btn = optionButtons[i];
+        const textEl = btn.querySelector('.opt-text');
+        textEl.textContent = q.options[i] || '';
+        btn.classList.remove('correct','wrong','disabled','shake','flash');
+        btn.disabled = false;
+        btn.style.pointerEvents = 'auto';
+      }
+      locked = false;
+      nextBtn.style.display = 'none';
+      metaIndex.textContent = current + 1;
+      metaTotal.textContent = total;
+      metaCorrect.textContent = correctCount;
+      metaWrong.textContent = wrongCount;
+      scoreEl.textContent = correctCount;
+      // progress
+      const percent = Math.round(((current)/total)*100);
+      progressBar.style.width = percent + '%';
+
+      // Start timer for this question if configured
+      resetTimer();
+      if (perQuestionTime > 0){
+        startTimer(perQuestionTime);
+      } else {
+        timerDisplay.textContent = '--';
+      }
+      // Smooth scroll to top of question (mobile)
+      questionText.scrollIntoView({behavior:'smooth',block:'center'});
+    }
+
+    // Timer functions
+    function startTimer(seconds){
+      clearTimer();
+      timeLeft = seconds;
+      updateTimerDisplay();
+      timerInterval = setInterval(()=>{
+        timeLeft--;
+        updateTimerDisplay();
+        if (timeLeft <= 0){
+          clearTimer();
+          // time out -> treat as wrong
+          handleTimeout();
+        }
+      },1000);
+    }
+    function clearTimer(){ if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } }
+    function resetTimer(){ clearTimer(); timerDisplay.textContent = perQuestionTime>0 ? formatTime(perQuestionTime) : '--'; }
+    function updateTimerDisplay(){
+      timerDisplay.textContent = formatTime(timeLeft);
+    }
+    function formatTime(s){
+      if (s<=0) return '00';
+      if (s>=60) return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+      return String(s).padStart(2,'0')+'s';
+    }
+
+    // Handle option click
+    optionButtons.forEach(btn=>{
+      btn.addEventListener('click',(e)=>{
+        if (locked) return;
+        const idx = Number(btn.getAttribute('data-i'));
+        selectAnswer(idx, btn);
+      });
+    });
+
+    // Next button
+    nextBtn.addEventListener('click',()=>{
+      // move to next question or finish
+      current++;
+      if (current >= total){
+        finishTest();
+      } else {
+        renderQuestion();
+      }
+    });
+
+    // Start button
+    startBtn.addEventListener('click',()=>{
+      startTest();
+    });
+
+    // Restart button
+    restartBtn.addEventListener('click', resetAll);
+
+    function startTest(){
+      // read settings
+      currentDifficulty = difficultySel.value;
+      total = Number(countSel.value) || 10;
+      const timerChoice = timerSel.value;
+      perQuestionTime = timerChoice === 'none' ? 0 : Number(timerChoice);
+      // prepare
+      questions = prepareQuestions(currentDifficulty, total);
+      current = 0;
+      correctCount = 0;
+      wrongCount = 0;
+      locked = false;
+      finalCard.style.display = 'none';
+      restartBtn.style.display = 'inline-block';
+      startBtn.style.display = 'none';
+      difficultySel.disabled = true;
+      countSel.disabled = true;
+      timerSel.disabled = true;
+      renderQuestion();
+    }
+
+    function selectAnswer(index, btnEl){
+      if (locked) return;
+      locked = true;
+      clearTimer();
+      // disable all options
+      optionButtons.forEach(b=>{ b.disabled = true; b.classList.add('disabled'); b.style.pointerEvents='none'; });
+      const q = questions[current];
+      const correctIndex = q.a;
+      // mark correct one
+      const correctBtn = optionButtons[correctIndex];
+      if (index === correctIndex){
+        correctCount++;
+        // selected button correct flash
+        btnEl.classList.add('correct','flash');
+        // subtle animation on center
+      } else {
+        wrongCount++;
+        btnEl.classList.add('wrong','shake');
+        // highlight correct
+        correctBtn.classList.add('correct','flash');
+      }
+      // update stats
+      metaCorrect.textContent = correctCount;
+      metaWrong.textContent = wrongCount;
+      scoreEl.textContent = correctCount;
+
+      // After 0.8s show Next (or finish)
+      setTimeout(()=>{
+        nextBtn.style.display = 'inline-block';
+      }, 800);
+    }
+
+    function handleTimeout(){
+      if (locked) return;
+      locked = true;
+      wrongCount++;
+      // disable all and highlight correct
+      optionButtons.forEach(b=>{ b.disabled = true; b.classList.add('disabled'); b.style.pointerEvents='none'; });
+      const q = questions[current];
+      const c = q.a;
+      optionButtons[c].classList.add('correct','flash');
+      metaWrong.textContent = wrongCount;
+      scoreEl.textContent = correctCount;
+      // show next after 0.8s
+      setTimeout(()=>{ nextBtn.style.display = 'inline-block'; }, 800);
+    }
+
+    function finishTest(){
+      clearTimer();
+      // progress 100%
+      progressBar.style.width = '100%';
+      // Hide question area controls
+      nextBtn.style.display = 'none';
+      // Show final card with stats
+      finalCard.style.display = 'flex';
+      finalCorrect.textContent = correctCount;
+      finalWrong.textContent = wrongCount;
+
+      // Estimate IQ:
+      // Per user's request approximate centers: easy~100, medium~200, hard~300
+      // We'll use base value times (correct/total), rounded.
+      const base = currentDifficulty === 'easy' ? 100 : currentDifficulty === 'medium' ? 200 : 300;
+      const ratio = total > 0 ? (correctCount/total) : 0;
+      const estimated = Math.round(base * ratio);
+      finalIQ.textContent = estimated + ' IQ (taxminiy)';
+
+      // Provide breakdown text
+      finalBreak.textContent = `Daraja: ${capitalize(currentDifficulty)} · Savollar: ${total} · To'g'ri: ${correctCount}`;
+
+      // unlock settings for restart/new test but keep restart visible
+      difficultySel.disabled = false;
+      countSel.disabled = false;
+      timerSel.disabled = false;
+      startBtn.style.display = 'inline-block';
+      startBtn.textContent = 'Yana bir test';
+    }
+
+    function resetAll(){
+      clearTimer();
+      questions = [];
+      current = 0;
+      total = 0;
+      correctCount = 0;
+      wrongCount = 0;
+      locked = false;
+      perQuestionTime = 0;
+      // Reset UI
+      metaIndex.textContent = 0;
+      metaTotal.textContent = 0;
+      metaCorrect.textContent = 0;
+      metaWrong.textContent = 0;
+      scoreEl.textContent = 0;
+      progressBar.style.width = '0%';
+      timerDisplay.textContent = '--';
+      questionText.textContent = 'Boshlash uchun Start tugmasini bosing';
+      optionButtons.forEach((b,i)=>{
+        b.classList.remove('correct','wrong','disabled','shake','flash');
+        b.disabled = false;
+        b.style.pointerEvents = 'auto';
+        b.querySelector('.opt-text').textContent = ['Option A','Option B','Option C','Option D'][i];
+      });
+      finalCard.style.display = 'none';
+      restartBtn.style.display = 'none';
+      startBtn.style.display = 'inline-block';
+      startBtn.textContent = 'Start';
+      difficultySel.disabled = false;
+      countSel.disabled = false;
+      timerSel.disabled = false;
+      nextBtn.style.display = 'none';
+    }
+
+    // Utility
+    function capitalize(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+
+    // Ensure keyboard accessibility: Enter/Space on focused option triggers click
+    optionButtons.forEach(b=>{
+      b.setAttribute('tabindex','0');
+      b.addEventListener('keydown', (e)=>{
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); b.click(); }
+      });
+    });
+
+    // Initialize accessible labels for tags A-D
+    (function setTags(){
+      const letters = ['A','B','C','D'];
+      optionButtons.forEach((b,i)=>{
+        b.querySelector('.tag').textContent = letters[i];
+      });
+    })();
+
+    // Prevent accidental text selection causing UI lags on mobile
+    document.addEventListener('touchstart', ()=>{}, {passive:true});
+
+    // On page load show brief animation
+    window.addEventListener('load', ()=> {
+      // tiny animate: progress to 3% then reset
+      setTimeout(()=>{ progressBar.style.width='3%'; }, 200);
+      setTimeout(()=>{ progressBar.style.width='0%'; }, 700);
+    });
+  </script>
+</body>
+</html>
